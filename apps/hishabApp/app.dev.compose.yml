@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  app:
+    container_name: app-dev
+    restart: always
+
+    build:
+      context: ./
+      dockerfile: Dockerfile-dev
+
+    working_dir: /hishab/apps/hishabApp
+    command: yarn dev
+
+    volumes:
+      - ./:/app

@@ -1,0 +1,12 @@
+build/**
+dist/**
+
+node_modules
+
+.turbo
+.next/**
+
+/.DATA
+/_env
+
+/.env

@@ -13,7 +13,8 @@
   "dependencies": {
     "@babel/runtime": "^7.19.0",
     "react": "18.1.0",
-    "react-native": "0.70.2"
+    "react-native": "0.70.2",
+    "react-native-get-sms-android": "^2.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

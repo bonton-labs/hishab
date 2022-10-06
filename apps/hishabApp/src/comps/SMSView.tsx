@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import SmsAndroid from 'react-native-get-sms-android';
 import {StyleSheet, Text, View, Button} from 'react-native';
 

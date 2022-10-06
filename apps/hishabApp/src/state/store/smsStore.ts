@@ -1,5 +1,10 @@
 import create from 'zustand';
 
+interface SMSStore {
+  sms: smsList[];
+  setSMS: (sms: smsList[]) => void;
+}
+
 interface smsList {
   id: string;
   body: string;
@@ -10,7 +15,7 @@ interface smsList {
   service_center: string;
 }
 
-export const useSMSStore = create(set => ({
+export const useSMSStore = create<SMSStore>(set => ({
   sms: [],
   setSMS: (smsObject: smsList[]) => {
     set({sms: smsObject});

@@ -11,7 +11,6 @@ import {
   Text,
   View,
   Button,
-  PermissionsAndroid,
 } from 'react-native';
 
 import SmsAndroid from 'react-native-get-sms-android';

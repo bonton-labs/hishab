@@ -26,8 +26,7 @@ const RenderSMS = () => {
     const filter = {
       box: 'inbox',
       indexFrom: 0,
-      maxCount: 5,
-      address: 'EBL' || 'bKash',
+      maxCount: 100,
     };
 
     SmsAndroid.list(
@@ -38,10 +37,15 @@ const RenderSMS = () => {
       (count: number, smsList: string) => {
         const parsedSMS: smsList[] = JSON.parse(smsList);
 
-        const formattedSMS = parsedSMS.map(newSms => ({
-          ...newSms,
-          date: formatDate(newSms.date),
-        }));
+        const formattedSMS = parsedSMS
+          .filter(
+            (smsFilter: smsList) =>
+              smsFilter.address === 'EBL' || smsFilter.address === 'bKash',
+          )
+          .map(newSms => ({
+            ...newSms,
+            date: formatDate(newSms.date),
+          }));
 
         setSMS(formattedSMS);
       },

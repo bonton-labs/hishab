@@ -7,43 +7,59 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:./data.db"
 }
 
 model AuthToken {
-  id   String @id @default(uuid())
-  user Users  @relation(fields: [userId], references: [id])
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id])
   userId Int
 }
 
-model Users {
-  id           Int            @id @default(autoincrement())
-  email        String         @unique
-  name         String?
-  Transactions Transactions[]
-  Accounts     Accounts[]
+model User {
+  id       Int    @id @default(autoincrement())
+  name     String
+  email    String @unique
+  password String
+
   AuthToken    AuthToken[]
+  Transactions Transaction[]
+  Accounts     Account[]
 }
 
-model Transactions {
+model Transaction {
   id Int @id @default(autoincrement())
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  from     Account? @relation("transactionsSent", fields: [fromId], references: [id])
+  fromId   Int?
   fromName String
+
+  to     Account? @relation("transactionsReceived", fields: [toId], references: [id])
+  toId   Int?
   toName String
-  amount Decimal
-  note String?
+
+  category    String
+  amount      Decimal
+  note        String?
   description String?
-  date DateTime
-  category String
-  user Users @relation(fields: [userId], references: [id])
-  userId Int
-  visible Boolean @default(true)
+
+  date    DateTime
+  visible Boolean  @default(true)
 }
 
-model Accounts {
+model Account {
   id Int @id @default(autoincrement())
-  user Users @relation(fields: [userId], references: [id])
+
+  user   User @relation(fields: [userId], references: [id])
   userId Int
+
   group String
-  name String
-  note String
+  name  String
+  note  String
+
+  tranactionsSent      Transaction[] @relation("transactionsSent")
+  transactionsReceived Transaction[] @relation("transactionsReceived")
 }

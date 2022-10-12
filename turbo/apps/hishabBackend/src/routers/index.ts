@@ -1,8 +1,20 @@
 import { authRouter } from "./authRouter";
+import { profileRouter } from "./profileRouter";
+import { financeRouter } from "./financeRouter";
 
-// authRouter
-// createAccount, login, forgotPassword, resendOTP, verifyOTP
+import { inferAsyncReturnType, initTRPC } from "@trpc/server";
+import * as trpcExpress from "@trpc/server/adapters/express";
 
-// appRouter
-// logout, addAccount, editAccount, removeAccount, getAccounts, createTransaction,
-// editTransaction, removeTransaction, getTransactions, getAnalytics
+export const createContext = ({
+  req,
+  res,
+}: trpcExpress.CreateExpressContextOptions) => ({}); // no context
+type Context = inferAsyncReturnType<typeof createContext>;
+
+const t = initTRPC.context<Context>().create();
+
+export const appRouter = t.router({
+  auth: authRouter,
+  profile: profileRouter,
+  finance: financeRouter,
+});

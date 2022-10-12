@@ -1,4 +1,4 @@
-export function createAccount(email: string, name: string, password: string) {
+export function createUser(email: string, name: string, password: string) {
   console.log(email);
   console.log(name);
   console.log(password);

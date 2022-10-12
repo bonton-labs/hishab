@@ -3,18 +3,22 @@
  */
 
 import React from 'react';
-import {SafeAreaView, ScrollView, StatusBar} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import Main from './src/comps/Main';
+import Auth from './src/views/Auth';
+
+const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
-    <SafeAreaView>
-      <StatusBar />
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
-        <Main />
-      </ScrollView>
-    </SafeAreaView>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Auth">
+        <Stack.Screen name="Main" component={Main} />
+        <Stack.Screen name="Auth" component={Auth} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 };
 

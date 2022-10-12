@@ -1,6 +1,6 @@
 import React from 'react';
 import SmsAndroid from 'react-native-get-sms-android';
-import {StyleSheet, Text, View, Button} from 'react-native';
+import {StyleSheet, Text, View, Button, ScrollView} from 'react-native';
 
 import {useStore} from '../state/store';
 
@@ -53,7 +53,7 @@ const RenderSMS = () => {
   };
 
   return (
-    <View>
+    <ScrollView contentInsetAdjustmentBehavior="automatic">
       {sms.length > 0 ? (
         sms.map(
           (
@@ -76,7 +76,7 @@ const RenderSMS = () => {
         <Text>No SMS</Text>
       )}
       <Button title="Request SMS Permission" onPress={listSMS} />
-    </View>
+    </ScrollView>
   );
 };
 

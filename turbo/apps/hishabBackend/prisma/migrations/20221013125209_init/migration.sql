@@ -14,6 +14,17 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
+CREATE TABLE "OneTimeCode" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
+    "creationTime" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "validitySeconds" INTEGER NOT NULL,
+    "isValid" BOOLEAN NOT NULL DEFAULT true,
+    "code" TEXT NOT NULL,
+    CONSTRAINT "OneTimeCode_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "Transaction" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "userId" INTEGER NOT NULL,

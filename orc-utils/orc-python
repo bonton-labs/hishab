@@ -1,0 +1,195 @@
+#!./orc-utils/_env/bin/python
+import sys
+import click
+import yaml
+import os
+
+from pyfiglet import Figlet
+
+def load(name):
+    path = f'./orc-utils/presets/{name}.yml'
+
+    try:
+        with open(path) as stream:
+            data = yaml.safe_load(stream)
+            files = []
+
+            for service in data['services']:
+                servicePath = os.path.abspath(
+                    os.path.dirname(
+                        os.path.dirname(
+                            __file__
+                        ) + '/' + path
+                    ) + '/' + service
+                )
+
+                files.append(servicePath)
+
+            return files
+
+    except:
+        print(f'CANNOT PARSE {path}')
+
+
+def execRead(command, display=False):
+    output = os.popen(command).read()
+
+    if display:
+        print(output)
+
+    return output.strip()
+
+
+figlet = Figlet(font='slant')
+
+if len(sys.argv) > 1:
+    if sys.argv[1] == "compose":
+        args = " ".join(sys.argv[2:])
+
+        # getting the preset files
+        file = open('.orc.lock', 'r')
+        preset_name = file.read().strip()
+        file.close()
+
+        if preset_name != '':
+            files = load(preset_name)
+            files = list(set(files))
+            preset_args = [f'-f {file}' for file in files]
+            preset_argsStr = " ".join(preset_args)
+        else:
+            print("ERROR: NO PRESET IS LOCKED IN")
+            sys.exit(1)
+
+        os.system(
+            f"GIT_COMMIT_HASH=$(git rev-parse HEAD) docker-compose -f ./docker-compose.yml {preset_argsStr} {args}")
+
+        sys.exit(0)
+
+
+@click.group(invoke_without_command=True)
+def root():
+    if len(sys.argv) == 1:
+        print("\n\n")
+
+        for line in figlet.renderText('ORC').split('\n'):
+            print("    " + line)
+
+        print("    Orc, short for Orchestrator, is a thin wrapper around docker-compose to\n    enhance its features, created in Bonton Connect for use in it's mono repo .\n")
+        print("    To show help with all commands, run:\n    ./orc --help\n")
+        print(
+            "    To directly run compose commands, run:\n    ./orc compose [compose arg 1] ... [compose arg N]\n")
+
+        print("")
+
+
+@root.command(help='Run commands directly on docker-compose (pass all arguments to docker compose)')
+def compose():
+    pass
+
+
+@root.command('list', help='List all available presets')
+def listPresets():
+    presets = os.listdir('./orc-utils/presets')
+
+    for preset in presets:
+        *name, _ = preset.split('.')
+
+        try:
+            with open(f'./orc-utils/presets/{preset}') as stream:
+                data = yaml.safe_load(stream)
+
+                if 'services' not in data or len(data['services']) < 1:
+                    description = '<-------- NO SERVICES DEFINED'
+
+                if 'description' in data:
+                    description = data['description']
+                else:
+                    description = ''
+
+        except:
+            description = '<------- PARSE ERROR'
+            continue
+
+        print('.'.join(name) + ': ' + description)
+
+
+@root.command('shell', help='Access the shell of a docker container')
+@click.argument('container')
+def enterShell(container):
+    os.system(f"docker exec -it {container} /bin/sh")
+
+
+@root.command('logs', help='Shows logs of a particular service')
+@click.argument('service')
+def enterLogs(service):
+    os.system(f"./orc compose logs -f {service}")
+
+
+@root.command('lock', help='Locks in a preset')
+@click.argument('preset')
+def lockPreset(preset):
+    file = open('.orc.lock', 'r')
+    previous_preset = file.read().strip()
+    file.close()
+
+    if previous_preset == preset or previous_preset == '':
+
+        files = load(preset)
+
+        if files:
+            file = open('.orc.lock', 'w')
+            file.write(preset)
+            file.close()
+    else:
+        print('ERROR: CANNOT LOCK MULTIPLE PRESETS')
+
+
+@root.command('unlock', help='Unlocks a preset')
+def unlockPreset():
+    file = open('.orc.lock', 'r')
+    previous_preset = file.read().strip()
+    file.close()
+
+    if previous_preset != '':
+        file = open('.orc.lock', 'w')
+        file.write('')
+        file.close()
+    else:
+        print('ERROR: NO PRESET IS LOCKED IN')
+
+
+@root.command('which', help='Shows currently locked in preset')
+def unlockPreset():
+    file = open('.orc.lock', 'r')
+    current_preset = file.read().strip()
+    file.close()
+
+    if current_preset != '':
+        print(current_preset)
+
+
+@root.command('down', help='Kill the containers from the last preset that was run')
+def presetDown():
+    try:
+        os.system(f"./orc compose down")
+        os.system(f"./orc unlock")
+
+    except:
+        previous_preset = None
+        print('ERROR: NO PRESET IS CURRENTLY RUNNING')
+
+
+@root.command('up', help='Prefix docker-compose with the config files of a specific preset', context_settings=dict(allow_extra_args=True, allow_interspersed_args=True, ignore_unknown_options=True))
+@click.argument('preset', nargs=-1)
+def prefixPresetUp(preset=None):
+    args = " ".join(sys.argv[2:])
+
+    if len(preset) > 0:
+        args = " ".join(sys.argv[3:])
+
+        os.system(f"./orc lock {preset[0]}")
+        
+    os.system(f"./orc compose up {args}")
+
+if __name__ == '__main__':
+    root()

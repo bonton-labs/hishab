@@ -33,7 +33,7 @@ export const financeRouter = t.router({
       })
     )
     .mutation(async ({ input }) => {
-      return addAccount(input.oldPassword, input.newPassword);
+      return addAccount();
     }),
   editAccount: t.procedure.input(z.object({})).mutation(async ({ input }) => {
     return editAccount();

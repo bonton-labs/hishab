@@ -1,9 +1,4 @@
-import { createUser } from "./createUser";
-import { login } from "./login";
-import { forgotPassword } from "./forgotPassword";
-import { resendOTP } from "./resendOTP";
-import { verifyOTP } from "./verifyOTP";
-import { enterNewPassword } from "./enterNewPassword";
+import { createUser, login, forgotPassword, resendOneTimeCode, verifyOneTimeCode, enterNewPassword } from "./procedures";
 
 import { z } from "zod";
 import { inferAsyncReturnType, initTRPC } from "@trpc/server";
@@ -39,26 +34,26 @@ export const authRouter = t.router({
     .mutation(async ({ input }) => {
       return forgotPassword(input.email);
     }),
-  resendOTP: t.procedure
+  resendOneTimeCode: t.procedure
     .input(z.object({ email: z.string().email() }))
     .mutation(async ({ input }) => {
-      return resendOTP(input.email);
+      return resendOneTimeCode(input.email);
     }),
-  verifyOTP: t.procedure
-    .input(z.object({ email: z.string().email(), otp: z.string() }))
+  verifyOneTimeCode: t.procedure
+    .input(z.object({ email: z.string().email(), code: z.string() }))
     .mutation(async ({ input }) => {
-      return verifyOTP(input.email, input.otp);
+      return verifyOneTimeCode(input.email, input.code);
     }),
   enterNewPassword: t.procedure
     .input(
       z.object({
         email: z.string().email(),
-        otp: z.string(),
+        code: z.string(),
         password: z.string(),
       })
     )
     .mutation(async ({ input }) => {
-      return enterNewPassword(input.email, input.otp, input.password);
+      return enterNewPassword(input.email, input.code, input.password);
     }),
 });
 

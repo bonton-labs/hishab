@@ -1,5 +1,4 @@
-import { changePassword } from "./changePassword";
-import { logout } from "./logout";
+import { changePassword, logout } from "./procedures";
 
 import { z } from "zod";
 import { inferAsyncReturnType, initTRPC } from "@trpc/server";

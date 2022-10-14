@@ -1,5 +1,6 @@
 import { prismaClient } from "../postgres";
 import { TRPCError } from "@trpc/server";
+import { getHashedText, compareHashWithText } from "../../utils";
 
 export class UserRepo {
   async createUser(email: string, password: string, name: string) {
@@ -18,7 +19,7 @@ export class UserRepo {
       const user = await prismaClient.user.create({
         data: {
           email: email,
-          password: password,
+          password: await getHashedText(password),
           name: name,
         },
       });
@@ -30,17 +31,22 @@ export class UserRepo {
     const user = await prismaClient.user.findFirst({
       where: {
         email: email,
-        password: password,
       },
     });
 
     if (user) {
-      return user;
-    } else {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-      });
+      const passwordMatched = await compareHashWithText(
+        password,
+        user.password
+      );
+      if (passwordMatched) {
+        return user;
+      }
     }
+
+    throw new TRPCError({
+      code: "FORBIDDEN",
+    });
   }
 
   async getUserWithEmail(email: string) {
@@ -53,7 +59,7 @@ export class UserRepo {
     if (user) {
       return user;
     } else {
-      return null
+      return null;
     }
   }
 }

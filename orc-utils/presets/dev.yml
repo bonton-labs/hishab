@@ -1,0 +1,3 @@
+description: Start all dev services.
+services:
+  - ../../../turbo/apps/hishabBackend/backend.dev.compose.yml

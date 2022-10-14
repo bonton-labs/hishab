@@ -10,3 +10,7 @@ node_modules
 /_env
 
 /.env
+
+.orc.lock
+
+orc-utils/_env
